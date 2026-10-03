@@ -6,6 +6,7 @@
 const CFG = window.MICRODOSE_CONFIG, STYLES = window.MICRODOSE_STYLES;
 const MORPH_SECONDS = CFG.morphSeconds, STAGGER = CFG.stagger, EASE_POWER = CFG.easePower;
 const PEN_COLOURS = CFG.penColours, REDUCED_HOLD = CFG.reducedHold;
+const CREDIT_FADE = CFG.creditFadeSeconds != null ? CFG.creditFadeSeconds : 0.4;
 const INK = CFG.ink, AUTHORS = CFG.authors, PALETTE = CFG.palette;
 
 /* ===================================================================== basics */
@@ -230,14 +231,23 @@ function draw(T) {
 }
 
 /* ===================================================================== credit */
-const creditLink = $('#creditLink'), creditNow = $('.credit .now');
+const creditNow = $('.credit .now');
+const creditLayers = Array.from(document.querySelectorAll('.credit .name a'));
+let front = 1;                                             // which layer is showing; the other is the spare
+creditNow.style.setProperty('--credit-fade', CREDIT_FADE + 's');
 function hrefOf(u) { if (/^[a-z][a-z0-9+.-]*:/i.test(u)) return u; return u.includes('@') ? 'mailto:' + u : 'https://' + u; }
 function setCredit(i) {
   lastCredit = i;
   const a = AUTHORS[STY[i].author];
   creditNow.style.visibility = a ? '' : 'hidden';          // a version with no credit just shows nothing
   if (!a) return;
-  creditLink.textContent = a.name.toLowerCase(); creditLink.href = hrefOf(a.url);
+  const name = a.name.toLowerCase(), href = hrefOf(a.url), showing = creditLayers[front];
+  if (showing.textContent === name && showing.getAttribute('href') === href) return;   // same person twice in a row
+  front = 1 - front;
+  const next = creditLayers[front], prev = showing;
+  next.textContent = name; next.href = href;
+  next.classList.add('on'); next.removeAttribute('aria-hidden'); next.removeAttribute('tabindex');
+  prev.classList.remove('on'); prev.setAttribute('aria-hidden', 'true'); prev.tabIndex = -1;
 }
 // invisible copies of every credit give the box the width of the longest one
 const sizer = $('#sizer');

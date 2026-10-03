@@ -36,6 +36,16 @@ body{
 .credit .sizer{grid-area:1/1;display:grid;visibility:hidden}
 .credit .sizer span{grid-area:1/1}
 .credit .now{grid-area:1/1;justify-self:start}
+/* The two name layers sit on top of each other in the same cell so the name can change without moving
+   anything. The old name fades out over the first half of the change and the new one fades in over the
+   second half, so the two are never legible on top of each other. The dash never fades. */
+.credit .name{display:inline-grid;vertical-align:baseline}
+.credit .name a{
+  grid-area:1/1;justify-self:start;opacity:0;pointer-events:none;
+  transition:opacity calc(var(--credit-fade,.4s) / 2) ease-in-out 0s;
+}
+.credit .name a.on{opacity:1;pointer-events:auto;transition-delay:calc(var(--credit-fade,.4s) / 2)}
+@media (prefers-reduced-motion:reduce){.credit .name a{transition-duration:.01ms;transition-delay:0s}}
 .credit a{color:inherit;text-decoration:underline;text-decoration-color:rgba(0,0,0,.3);text-decoration-thickness:1px;text-underline-offset:3px}
 .credit a:hover{text-decoration-color:currentColor}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

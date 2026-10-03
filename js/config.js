@@ -7,6 +7,7 @@ window.MICRODOSE_CONFIG = {
   stagger: 0.25,        // how far each letter trails the one before it (fraction of a morph). 0 = all letters together.
   easePower: 7,         // easing in and out of each morph. 3 = gentle, 4 = current, higher = lingers longer at each end.
   reducedHold: 6,       // seconds each version stays up for visitors who ask for reduced motion (they get no morphing)
+  creditFadeSeconds: 0.4, // the whole credit change: the old name fades out over the first half, the new one in over the second
 
   /* ---- ink ---- */
   penColours: true,     // true: each version keeps the colour of the pen it was drawn with. false: everything uses "pink".
