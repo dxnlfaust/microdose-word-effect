@@ -1,0 +1,43 @@
+@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/schibsted-grotesk-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Schibsted Grotesk";font-style:normal;font-weight:500;font-display:swap;src:url("../fonts/schibsted-grotesk-latin-500-normal.woff2") format("woff2")}
+
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+  --paper:#ffffff; --text:#000000; --focus:#2f5bff;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--paper);color:var(--text);
+  font:15px/1.4 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  min-height:100vh;min-height:100svh;
+  display:grid;place-items:center;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:3px}
+
+/* The title: full width, 1000:420 like the artwork's stage. On desktop it never grows past 90% of the
+   window height; on a phone it is simply centred in the window. */
+.stage{position:relative;width:100%;height:min(42vw,90vh);height:min(42vw,90svh)}
+#title{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;overflow:visible}
+
+/* Credit: bottom-right of the stage, above the artwork. It is a box as wide as the longest credit and the
+   text is left-aligned inside it, so the dash never moves, whatever the name. */
+.credit{
+  position:absolute;z-index:3;margin:0;
+  right:clamp(32px,6vw,96px);bottom:12%;
+  display:grid;text-align:left;white-space:nowrap;
+  font-size:clamp(13px,1.05vw,15px);color:var(--text);
+}
+.credit .sizer{grid-area:1/1;display:grid;visibility:hidden}
+.credit .sizer span{grid-area:1/1}
+.credit .now{grid-area:1/1;justify-self:start}
+.credit a{color:inherit;text-decoration:underline;text-decoration-color:rgba(0,0,0,.3);text-decoration-thickness:1px;text-underline-offset:3px}
+.credit a:hover{text-decoration-color:currentColor}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.nojs{position:absolute;inset:0;display:grid;place-items:center;font-size:2rem;margin:0}

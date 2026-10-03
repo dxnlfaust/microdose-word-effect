@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Microdose</title>
+<meta name="description" content="Microdose, hand-lettered by many different people, morphing from one version to the next.">
+<meta name="theme-color" content="#ffffff">
+<!-- Keeps the client preview out of search engines. Delete this line at launch. -->
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="stage" id="stage">
+  <svg id="title" viewBox="0 0 1000 420" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The word Microdose, hand-lettered in many different styles, slowly morphing from one to the next">
+    <defs>
+      <!-- the ink: wobbly edges, a little bleed, a soft feathered halo and grain -->
+      <filter id="ink" filterUnits="userSpaceOnUse" x="-30" y="-30" width="1060" height="480" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.03 0.036" numOctaves="2" seed="7" result="wob"/>
+        <feDisplacementMap id="fDisp" in="SourceGraphic" in2="wob" scale="7.5" xChannelSelector="R" yChannelSelector="G" result="d1"/>
+        <feGaussianBlur id="fBleed" in="d1" stdDeviation="0.8" result="b1"/>
+        <feComponentTransfer in="b1" result="core"><feFuncA type="linear" slope="7" intercept="-3"/></feComponentTransfer>
+        <feGaussianBlur id="fFeather" in="core" stdDeviation="3" result="hz"/>
+        <feComponentTransfer in="hz" result="halo"><feFuncA type="linear" slope="0.38"/></feComponentTransfer>
+        <feMerge result="ink"><feMergeNode in="halo"/><feMergeNode in="core"/></feMerge>
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" result="gn"/>
+        <feColorMatrix in="gn" type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  1 0 0 0 0" result="gn1"/>
+        <feComponentTransfer in="gn1" result="gn2">
+          <feFuncR type="linear" slope="2.6" intercept="-0.8"/><feFuncG type="linear" slope="2.6" intercept="-0.8"/>
+          <feFuncB type="linear" slope="2.6" intercept="-0.8"/><feFuncA type="linear" slope="2.6" intercept="-0.8"/>
+        </feComponentTransfer>
+        <feComposite id="fGrain" in="ink" in2="gn2" operator="arithmetic" k1="-0.28" k2="1" k3="0" k4="0"/>
+      </filter>
+    </defs>
+    <g id="inkG" filter="url(#ink)"></g>
+  </svg>
+  <p class="credit" id="credit"><span class="sr">Drawn by </span><span class="sizer" id="sizer" aria-hidden="true"></span><span class="now">— <a id="creditLink" target="_blank" rel="noopener noreferrer"></a></span></p>
+</main>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><path id="meas"/></svg>
+
+<noscript><p class="nojs">Microdose</p></noscript>
+<script src="js/config.js"></script>
+<script src="js/styles.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
