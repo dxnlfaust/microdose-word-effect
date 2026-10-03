@@ -3,9 +3,9 @@
 window.MICRODOSE_CONFIG = {
 
   /* ---- motion ---- */
-  morphSeconds: 4,      // one morph, start to finish. The next one begins the instant it ends.
-  stagger: 0.16,        // how far each letter trails the one before it (fraction of a morph). 0 = all letters together.
-  easePower: 4,         // easing in and out of each morph. 3 = gentle, 4 = current, higher = lingers longer at each end.
+  morphSeconds: 3,      // one morph, start to finish. The next one begins the instant it ends.
+  stagger: 0.25,        // how far each letter trails the one before it (fraction of a morph). 0 = all letters together.
+  easePower: 7,         // easing in and out of each morph. 3 = gentle, 4 = current, higher = lingers longer at each end.
   reducedHold: 6,       // seconds each version stays up for visitors who ask for reduced motion (they get no morphing)
 
   /* ---- ink ---- */
@@ -18,10 +18,10 @@ window.MICRODOSE_CONFIG = {
   ink: {
     width: 4.6,         // pen width (in units of the 1000 x 420 artboard)
     taper: 0.7,         // 0 = even line, 1 = strongly tapered ends
-    wobble: 7.5,        // edge roughness
+    wobble: 2,        // edge roughness
     bleed: 0.8,         // how much nearby ink merges and rounds off
     feather: 3,         // size of the soft halo around the line
-    grain: 0.28         // paper speckle, 0 to 1
+    grain: 0         // paper speckle, 0 to 1
   },
 
   /* ---- credits (placeholders for now) ---- */
