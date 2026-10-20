@@ -3,6 +3,11 @@
 The word *Microdose* hand-lettered by many different people. The page morphs from one person's version to the
 next, letter by letter, and credits whoever drew the version you're looking at.
 
+The letters are drawn as ink in water: each one keeps bleeding pigment into the water around it, the strokes stir the
+water as they morph, and the pigment curls away and separates into acid colours as it thins out, over the perforated
+grid of a blotter sheet. It is a small fluid simulation running on the graphics chip (WebGL). Devices without WebGL,
+and visitors who ask for reduced motion, get the earlier ink-on-paper look instead.
+
 It is a plain static site: no build step, no dependencies, no third-party requests (the font is included).
 
 ## Look at it
@@ -48,37 +53,49 @@ Everything you're likely to want is in **`js/config.js`**:
 | `morphSeconds` | Length of each morph. The next starts the instant one ends. |
 | `stagger` | How far each letter trails the one before it. `0` moves all letters together. |
 | `easePower` | How strongly each morph eases in and out. Higher lingers longer at each end. |
-| `penColours`, `palette` | Whether each version keeps its original pen colour, and what those colours are. |
-| `ink` | The look of the ink: width, taper, edge wobble, bleed, feather, grain. |
-| `authors`, `credits` | The names and links shown in the corner, and which version each belongs to. Links can be web addresses, bare domains or email addresses. The names and links in this draft are placeholders. |
+| `effect` | `'water'` (ink in water) or `'classic'` (the earlier ink on paper). |
+| `penColours`, `pens` | Whether each version keeps the pen it was drawn with, and each pen's colours: `core` for dense ink, fading through `mid` to `far` in the faintest wisps, and `flat` for the classic look. |
+| `water` | The water: `seep` (how much pigment the letters release), `stir` (how hard the morph pushes the water), `swirl`, `drift`, `sink`, `linger`, `strength`, `halftone` and `dotSize` (the printed-dot look of the faint parts), `grain`, `wobble`, and `quality`. All are 1 by default except where noted; 0.5 halves an effect, 2 doubles it. |
+| `paper`, `perforations` | Paper colour, and whether to show the perforated blotter grid. |
+| `ink` | Pen width and taper (both looks), and the classic look's wobble, bleed, feather and grain. |
+| `links` | A link for each author's name in the corner: a web address, a bare domain or an email address. Leave it `''` and the name shows without a link. |
 
-The credit text and its position are in `css/style.css` (`.credit`).
+The credit text and its position are in `css/style.css` (`.credit`), and so is the perforated grid (`body.perforated`).
 
 ## Add more versions
 
 1. Extract the new pages and assign their letters in the letter lab, then export the project as JSON.
 2. Run `python3 tools/make_styles.py your-export.json`. This rewrites `js/styles.js`.
-3. Add a line for each new version under `credits` in `js/config.js`.
+3. The names in the corner come from the lab's Author field. If a new author appears, add them under `links` in
+   `js/config.js` (the link can stay empty).
+
+The lab export this site was built from is kept in `data/microdose-letters.json`.
 
 ## Good to know
 
-- **Speed.** The ink texture is an SVG filter, which is the heaviest part of the page. Add `#plain` to the end of
-  the address (`index.html#plain`) to switch it off and compare how smoothly it runs without it. If it turns out
-  too heavy for the devices that matter, the filter in `index.html` can be simplified (for example by dropping the
-  grain pass), at the cost of some of the ink look.
-- **Reduced motion.** Visitors who have asked their device for reduced motion don't get morphing; the page just
-  swaps to a new version every `reducedHold` seconds.
-- **Checking a single frame.** `#t=2.5` freezes the clock at 2.5 seconds, `#s=3` starts on the fourth version and
-  `#seed=7` makes the random order repeatable. They combine, e.g. `#t=2.5&s=3`.
+- **Speed.** The water runs on the graphics chip and is light on the processor (about 1 ms of script per frame).
+  On a slow device it notices and steps down its resolution by itself (`water.quality: 'auto'`). If it is still too
+  heavy somewhere that matters, set `quality` to `'low'`, or `effect` to `'classic'`.
+- **Fallbacks.** Without WebGL, or if the graphics chip gives up, the page carries on in the classic look.
+  Visitors who have asked their device for reduced motion get no morphing and no water: the page swaps to a new
+  version every `reducedHold` seconds.
+- **Checking things.** Add these to the end of the address, after a `#`, and reload:
+  `classic` shows the earlier look, `plain` the earlier look without its texture, `t=2.5` freezes the morph at
+  2.5 seconds (the water keeps moving), `s=3` starts on the fourth version, `seed=7` makes the random order repeatable,
+  and `step=60` advances exactly 1/60 s per frame however slow the machine (useful for screenshots). They combine,
+  e.g. `#s=3&seed=7`.
+- **Ant's two-line version** is drawn with MICRO upside down under DOSE, the way it is on his page.
 
 ## What's in the folder
 
 ```
 index.html          the page
 css/style.css       layout, the credit, the font
-js/config.js        settings and credits (edit this)
+js/config.js        settings, colours and links (edit this)
 js/styles.js        the lettering (generated)
-js/main.js          the morphing and the ink
+js/main.js          the morphing, the classic ink, the credit
+js/water.js         the ink in water (WebGL fluid simulation)
+data/               the letter-lab export the lettering was made from
 fonts/              Schibsted Grotesk (SIL Open Font License, licence included)
 favicon.svg         the sun doodle
 tools/make_styles.py  turns a letter-lab export into js/styles.js

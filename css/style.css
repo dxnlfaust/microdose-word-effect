@@ -25,6 +25,23 @@ body{
 .stage{position:relative;width:100%;height:min(42vw,90vh);height:min(42vw,90svh)}
 #title{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;overflow:visible}
 
+/* Ink in water: the water fills the whole window behind the title, so the pigment can drift anywhere.
+   The SVG title stays in place (screen readers use it) but its ink is hidden. */
+#water{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:0;pointer-events:none}
+body.water #water{display:block}
+body.water #inkG{display:none}
+
+/* The perforated grid of a sheet of blotter paper: rows and columns of tiny holes, centred on the window. */
+body.perforated{
+  --tab:clamp(46px,5.4vw,74px);
+  --hole:rgba(0,0,0,.17);
+  background-image:
+    radial-gradient(circle,var(--hole) .75px,transparent 1.15px),
+    radial-gradient(circle,var(--hole) .75px,transparent 1.15px);
+  background-size:5px var(--tab),var(--tab) 5px;
+  background-position:50% calc(50% + var(--tab) / 2),calc(50% + var(--tab) / 2) 50%;
+}
+
 /* Credit: bottom-right of the stage, above the artwork. It is a box as wide as the longest credit and the
    text is left-aligned inside it, so the dash never moves, whatever the name. */
 .credit{
@@ -33,21 +50,14 @@ body{
   display:grid;text-align:left;white-space:nowrap;
   font-size:clamp(13px,1.05vw,15px);color:var(--text);
 }
+/* in the water, a soft glow of paper behind the name keeps it readable when pigment drifts past */
+body.water .credit{text-shadow:0 0 2px var(--paper),0 0 5px var(--paper),0 0 10px var(--paper),0 0 16px var(--paper)}
 .credit .sizer{grid-area:1/1;display:grid;visibility:hidden}
 .credit .sizer span{grid-area:1/1}
 .credit .now{grid-area:1/1;justify-self:start}
-/* The two name layers sit on top of each other in the same cell so the name can change without moving
-   anything. The old name fades out over the first half of the change and the new one fades in over the
-   second half, so the two are never legible on top of each other. The dash never fades. */
-.credit .name{display:inline-grid;vertical-align:baseline}
-.credit .name a{
-  grid-area:1/1;justify-self:start;opacity:0;pointer-events:none;
-  transition:opacity calc(var(--credit-fade,.4s) / 2) ease-in-out 0s;
-}
-.credit .name a.on{opacity:1;pointer-events:auto;transition-delay:calc(var(--credit-fade,.4s) / 2)}
-@media (prefers-reduced-motion:reduce){.credit .name a{transition-duration:.01ms;transition-delay:0s}}
-.credit a{color:inherit;text-decoration:underline;text-decoration-color:rgba(0,0,0,.3);text-decoration-thickness:1px;text-underline-offset:3px}
-.credit a:hover{text-decoration-color:currentColor}
+.credit a{color:inherit;text-decoration:none}
+.credit a[href]{text-decoration:underline;text-decoration-color:rgba(0,0,0,.3);text-decoration-thickness:1px;text-underline-offset:3px}
+.credit a[href]:hover{text-decoration-color:currentColor}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 .nojs{position:absolute;inset:0;display:grid;place-items:center;font-size:2rem;margin:0}
