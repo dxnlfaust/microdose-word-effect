@@ -1,0 +1,146 @@
+/* The two stickers in the bottom corners: the settings panel (right) and how the website is feeling (left).
+   Each is a die-cut sticker: a white edge, rounded corners, a little shadow and a slight tilt. */
+
+[hidden]{display:none!important}
+:root{--sticker-gap:clamp(12px,2vw,24px)}
+
+/* both stickers live in one row along the bottom of the window. Side by side when there is room; on a narrow
+   screen the settings sticker wraps above the feeling, still on the right. */
+.stickers{
+  position:fixed;z-index:6;
+  left:calc(var(--sticker-gap) + env(safe-area-inset-left,0px));right:calc(var(--sticker-gap) + env(safe-area-inset-right,0px));
+  bottom:calc(var(--sticker-gap) + env(safe-area-inset-bottom,0px));
+  display:flex;flex-wrap:wrap-reverse;justify-content:space-between;align-items:flex-start;gap:14px;      /* wrap-reverse flips the cross axis: flex-start is the bottom */
+  pointer-events:none;
+}
+.sticker{
+  position:relative;pointer-events:auto;
+  padding:7px;background:#fff;border-radius:30px;
+  box-shadow:0 0 0 1px rgba(0,0,0,.1),0 2px 0 rgba(0,0,0,.06),0 10px 22px -6px rgba(0,0,0,.3);
+}
+/* a faint sheen across the plastic */
+.sticker::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(118deg,rgba(255,255,255,.5) 0,rgba(255,255,255,0) 26%,rgba(255,255,255,0) 74%,rgba(255,255,255,.22) 100%);
+}
+.sticker--feeling{max-width:100%;transform:rotate(-1.6deg);transform-origin:bottom left}
+.sticker--tweak{margin-left:auto}
+
+/* ==================================================================== feeling: a feelings chart */
+.feel{
+  --h:45;
+  --edge:hsl(var(--h) 78% 52%);
+  display:flex;align-items:center;gap:14px;
+  padding:12px 20px 12px 12px;border-radius:24px;
+  background:hsl(var(--h) 95% 93%);border:4px solid var(--edge);
+  font-family:"Nunito","Varela Round","Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#1b2230;
+}
+.feel-pic{
+  flex:none;width:92px;height:92px;padding:6px;display:grid;place-items:center;
+  background:#fff;border:4px solid var(--edge);border-radius:20px;
+}
+.feel-pic img{display:block;width:100%;height:100%;object-fit:contain}
+.feel-hi{margin:0 0 3px;font-size:28px;font-weight:800;line-height:1;color:hsl(var(--h) 80% 30%)}
+.feel-line{margin:0;font-size:16px;line-height:1.3;font-weight:700}
+.feel-name{
+  display:inline-block;margin-top:5px;padding:2px 14px 3px;
+  background:#fff;border:3px solid var(--edge);border-radius:99px;
+  font-size:22px;font-weight:800;line-height:1.25;text-transform:capitalize;
+}
+
+/* ==================================================================== tweak: a little Aqua window */
+.aqua{
+  width:min(272px,calc(100vw - 2 * var(--sticker-gap) - 14px));
+  overflow:hidden;border-radius:23px;border:1px solid #7f8999;
+  background:repeating-linear-gradient(0deg,#f3f5f8 0 2px,#e8ebf0 2px 4px);        /* pinstripes */
+  font:13px/1.25 "Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;color:#1f2a38;
+}
+.sticker--tweak:not(.open) .aqua{width:auto}
+.aqua-bar{
+  display:flex;align-items:center;gap:10px;width:100%;margin:0;padding:9px 14px;border:0;cursor:pointer;text-align:left;
+  font:inherit;font-weight:700;font-size:14px;color:#26303d;text-shadow:0 1px 0 rgba(255,255,255,.85);
+  background:linear-gradient(#fbfcfd,#e4e8ee 49%,#d3d9e1 51%,#e1e6ec);
+}
+.aqua-bar[aria-expanded="true"]{border-bottom:1px solid #98a2b1}
+.dots{display:flex;gap:6px}
+.dot{
+  display:block;width:14px;height:14px;border-radius:50%;
+  box-shadow:inset 0 -2px 3px rgba(0,0,0,.28),inset 0 2px 2px rgba(255,255,255,.8),0 0 0 1px rgba(0,0,0,.28);
+}
+.dot.r{background:radial-gradient(circle at 50% 25%,#ffb2aa,#ff3b30 72%)}
+.dot.y{background:radial-gradient(circle at 50% 25%,#ffeaa0,#ffbd2e 72%)}
+.dot.g{background:radial-gradient(circle at 50% 25%,#b4f5a4,#28c840 72%)}
+
+.aqua-body{max-height:calc(100vh - 2 * var(--sticker-gap) - 80px);max-height:calc(100svh - 2 * var(--sticker-gap) - 80px);overflow:auto;padding:6px 0 12px}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:1px 8px;padding:6px 16px 0}
+.row label{font-weight:700}
+.row output{
+  min-width:3.4em;padding:3px 8px;text-align:center;border-radius:99px;
+  font-size:11px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:#173049;
+  background:linear-gradient(#c9dbea,#e8f1f9);box-shadow:inset 0 1px 2px rgba(0,0,0,.4),0 1px 0 #fff;
+}
+.row input{grid-column:1/-1}
+.row.off{opacity:.45}
+.aqua-foot{display:flex;justify-content:center;padding:12px 16px 0}
+
+/* gel sliders: a groove that fills with candy colour, and a glossy ball to drag */
+input[type=range]{
+  --c:#2d8cff;--p:50%;
+  -webkit-appearance:none;appearance:none;display:block;width:100%;height:26px;margin:0;background:transparent;cursor:pointer;
+}
+input[type=range]:focus{outline:none}
+input[type=range]:disabled{cursor:not-allowed}
+input[type=range]::-webkit-slider-runnable-track{
+  height:12px;border-radius:99px;border:1px solid #7a8494;
+  background:
+    linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0) 55%),
+    linear-gradient(to right,var(--c) var(--p),transparent var(--p)),
+    linear-gradient(#b3bbc7,#e6eaf0 60%,#fff);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.9);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:24px;height:24px;margin-top:-7px;border-radius:50%;
+  border:1px solid rgba(0,0,0,.4);
+  background:
+    radial-gradient(ellipse 62% 40% at 50% 24%,rgba(255,255,255,.95),rgba(255,255,255,0)),
+    radial-gradient(circle at 50% 105%,rgba(255,255,255,.5),rgba(255,255,255,0) 60%),
+    var(--c);
+  box-shadow:0 2px 4px rgba(0,0,0,.4),inset 0 -3px 5px rgba(0,0,0,.25);
+}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.08)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(47,91,255,.55),0 2px 4px rgba(0,0,0,.4),inset 0 -3px 5px rgba(0,0,0,.25)}
+input[type=range]::-moz-range-track{
+  height:12px;border-radius:99px;border:1px solid #7a8494;
+  background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0) 55%),linear-gradient(#b3bbc7,#e6eaf0 60%,#fff);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.9);
+}
+input[type=range]::-moz-range-progress{height:12px;border-radius:99px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0) 55%),var(--c)}
+input[type=range]::-moz-range-thumb{
+  box-sizing:border-box;width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.4);
+  background:
+    radial-gradient(ellipse 62% 40% at 50% 24%,rgba(255,255,255,.95),rgba(255,255,255,0)),
+    radial-gradient(circle at 50% 105%,rgba(255,255,255,.5),rgba(255,255,255,0) 60%),
+    var(--c);
+  box-shadow:0 2px 4px rgba(0,0,0,.4),inset 0 -3px 5px rgba(0,0,0,.25);
+}
+input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px rgba(47,91,255,.55),0 2px 4px rgba(0,0,0,.4)}
+
+/* the Aqua pill button */
+.pill{
+  margin:0;padding:6px 20px;border-radius:99px;border:1px solid #1d5ea6;cursor:pointer;
+  font:inherit;font-weight:700;color:#fff;text-shadow:0 -1px 0 rgba(0,0,0,.4);
+  background:linear-gradient(#a2d0ff 0 50%,#2f8df0 50%,#66b3ff);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.85),0 1px 3px rgba(0,0,0,.3);
+}
+.pill:active{background:linear-gradient(#7fb9f5 0 50%,#1f73d0 50%,#4a9bf0)}
+
+/* small screens: a smaller feeling, so the two stickers fit side by side */
+@media (max-width:560px){
+  .feel{gap:10px;padding:9px 14px 9px 9px;border-width:3px}
+  .feel-pic{width:64px;height:64px;padding:4px;border-width:3px;border-radius:15px}
+  .feel-hi{font-size:21px}
+  .feel-line{font-size:13px}
+  .feel-name{font-size:17px;border-width:2px;padding:1px 10px 2px}
+  .sticker{padding:5px;border-radius:24px}
+}
+@media (prefers-reduced-motion:reduce){input[type=range]:active::-webkit-slider-thumb{transform:none}}

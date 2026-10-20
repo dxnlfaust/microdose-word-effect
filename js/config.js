@@ -20,31 +20,33 @@ window.MICRODOSE_CONFIG = {
      wisps turn `far`. `flat` is the single colour used by the classic look. */
   penColours: true,     // false: every version uses the pink pen
   pens: {
-    pink:  { core: '#ff0a8c', mid: '#ff5a1f', far: '#ffd400', flat: '#d60083' },
+    pink:  { core: '#ff0a8c', mid: '#cb1fff', far: '#ffd400', flat: '#d60083' },
     blue:  { core: '#1430ff', mid: '#8a2bff', far: '#00e5d4', flat: '#0033dc' },
-    red:   { core: '#ff1530', mid: '#ff7a00', far: '#b8ff00', flat: '#f5001a' },
+    red:   { core: '#ff1530', mid: '#c8ff00', far: '#bf00ff', flat: '#f5001a' },
     black: { core: '#140f1d', mid: '#4b1fd1', far: '#ff2bd6', flat: '#16141c' }
   },
 
   /* ---- ink in water ---- */
   water: {
     seep: 1,            // how much pigment the letters keep releasing into the water
-    stir: 1,            // how hard the moving strokes push the water while a morph is under way
+    stir: 3,            // how hard the moving strokes push the water while a morph is under way
     swirl: 1,           // curls and eddies (vorticity)
     drift: 1,           // slow background currents that keep the water moving between morphs
     sink: 1,            // pigment is heavier than water and slowly falls. 0 = it just spreads
-    linger: 1,          // how long pigment stays visible in the water before it fades
-    strength: 1,        // overall darkness of the pigment clouds
-    halftone: 0.55,     // 0 = smooth clouds, 1 = the faint parts printed as halftone dots, like an acid blotter sheet
+    linger: 4,          // how long pigment stays visible in the water before it fades
+    strength: 0.5,        // overall darkness of the pigment clouds
+    halftone: 0.0,     // 0 = smooth clouds, 1 = the faint parts printed as halftone dots, like an acid blotter sheet
     dotSize: 5,         // halftone dot spacing, in CSS pixels
     grain: 0.22,        // paper speckle in the ink, 0 to 1
     wobble: 1,          // roughness of the letter edges
+    glow: 0.9,          // white glow around the letters that clears the pigment right next to them. 0 = off, 1 = fully white
+    glowSize: 1.8,      // how far the glow reaches from the stroke. Scales with the word, so it looks the same at any window size
     quality: 'auto'     // 'auto' steps down on slow devices; or 'high', 'medium', 'low'
   },
 
   /* ---- paper ---- */
   paper: '#ffffff',
-  perforations: true,   // the faint perforated grid of a blotter sheet
+  perforations: false,   // the faint perforated grid of a blotter sheet
 
   /* ---- the classic look's ink ---- */
   ink: {

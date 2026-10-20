@@ -10,6 +10,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/stickers.css">
 </head>
 <body>
 
@@ -43,10 +44,38 @@
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><path id="meas"/></svg>
 
+<!-- Two stickers, stuck to the bottom corners. Both stay hidden until js/stickers.js has filled them in. -->
+<div class="stickers">
+<aside class="sticker sticker--feeling" id="feeling" aria-label="How this website is feeling" hidden>
+  <div class="feel">
+    <div class="feel-pic"><img id="feelImg" alt="" width="92" height="92" decoding="async"></div>
+    <div class="feel-words">
+      <p class="feel-hi">Hi!</p>
+      <p class="feel-line">This website is feeling <strong class="feel-name" id="feelName"></strong></p>
+    </div>
+  </div>
+</aside>
+
+<aside class="sticker sticker--tweak" id="tweak" aria-label="Play with the settings" hidden>
+  <div class="aqua">
+    <button type="button" class="aqua-bar" id="tweakBar" aria-expanded="false" aria-controls="tweakBody">
+      <span class="dots" aria-hidden="true"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i></span>
+      <span class="aqua-title">Play with me!</span>
+    </button>
+    <div class="aqua-body" id="tweakBody" hidden>
+      <div class="rows" id="tweakRows"></div>
+      <div class="aqua-foot"><button type="button" class="pill" id="tweakReset">Put it back</button></div>
+    </div>
+  </div>
+</aside>
+</div>
+
 <noscript><p class="nojs">Microdose</p></noscript>
 <script src="js/config.js"></script>
 <script src="js/styles.js"></script>
 <script src="js/water.js"></script>
 <script src="js/main.js"></script>
+<script src="js/smileys.js"></script>
+<script src="js/stickers.js"></script>
 </body>
 </html>

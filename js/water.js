@@ -217,15 +217,33 @@ void main () {
   gl_FragColor = min(d + add, max(d, vec4(.85)));
 }`;
 
+/* a soft copy of the letters, for the white glow: one pass of a gaussian blur along uStep (run once across, once down).
+   uChan picks what to blur: all four pens at once on the way in, then just the red channel on the way out. */
+const GLOW_FS = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uSrc;
+uniform vec2 uStep;             // one tap, in texture coordinates
+uniform vec4 uChan;
+void main () {
+  float s = 0., ws = 0.;
+  for (int i = -6; i <= 6; i++) {
+    float f = float(i), w = exp(-f * f / 11.52);          // sigma = 2.4 taps
+    s += w * min(1., dot(texture2D(uSrc, vUv + uStep * f), uChan));
+    ws += w;
+  }
+  gl_FragColor = vec4(s / ws, 0., 0., 1.);
+}`;
+
 /* what you see: crisp letters over pigment clouds that separate into their pen's colours as they thin out,
    with the faint parts printed as halftone dots */
 const DISPLAY_FS = `
 precision highp float;
 varying vec2 vUv;
-uniform sampler2D uDye, uMask;
+uniform sampler2D uDye, uMask, uGlow;
 uniform vec3 uCore[4], uMid[4], uFar[4];
 uniform vec2 uRes;
-uniform float uStrength, uHalftone, uCell, uGrain, uWobble;
+uniform float uStrength, uHalftone, uCell, uGrain, uWobble, uHalo;
 ${NOISE}
 vec4 maskAt (vec2 uv) { return texture2D(uMask, uv); }   // one pen per channel: pink, blue, red, black
 vec3 ramp (int i, float t) {
@@ -263,7 +281,9 @@ void main () {
     acc += col * a; sum += a; keep *= 1. - a;
   }
   float cloudA = (1. - keep) * .86;
-  vec3 cloud = sum > 0. ? acc / sum : vec3(0.);
+  // the white glow: pigment right beside a letter is washed out towards white, fading away with distance
+  float halo = uHalo * smoothstep(.02, .42, texture2D(uGlow, vUv + w).r);
+  vec3 cloud = sum > 0. ? mix(acc / sum, vec3(1.), halo) : vec3(0.);
   float A = cloudA + core * (1. - cloudA);
   vec3 col = mix(cloud, coreCol, core);
   A *= 1. - uGrain * hash(floor(px) + .37) * (.35 + .65 * core);
@@ -332,7 +352,7 @@ function create(canvas, opts) {
       splat: program(SPLAT_VS, SPLAT_FS), mask: program(MASK_VS, MASK_FS), forces: program(VS, FORCES_FS), curl: program(VS, CURL_FS),
       vorticity: program(VS, VORTICITY_FS), divergence: program(VS, DIVERGENCE_FS), scale: program(VS, SCALE_FS),
       pressure: program(VS, PRESSURE_FS), gradient: program(VS, GRADIENT_FS),
-      advect: program(VS, ADVECT_FS, linear ? null : ['MANUAL_FILTERING']), inject: program(VS, INJECT_FS), display: program(VS, DISPLAY_FS),
+      advect: program(VS, ADVECT_FS, linear ? null : ['MANUAL_FILTERING']), inject: program(VS, INJECT_FS), glow: program(VS, GLOW_FS), display: program(VS, DISPLAY_FS),
       mac: linear ? program(VS, MACCORMACK_FS) : null
     };
   } catch (e) { console.warn('Microdose water: falling back to the classic look.', e); return null; }
@@ -377,7 +397,7 @@ function create(canvas, opts) {
   /* ---- sizes ---- */
   let tier = W.quality && TIERS[W.quality] ? W.quality : (matchMedia('(pointer: coarse)').matches || Math.min(innerWidth, innerHeight) < 600 ? 'medium' : 'high');
   const autoQ = !(W.quality && TIERS[W.quality]);
-  let cw = 0, ch = 0, vel, dyeT, dyeTmp, divT, curlT, presT, maskT, mw = 0, mh = 0;
+  let cw = 0, ch = 0, vel, dyeT, dyeTmp, divT, curlT, presT, maskT, glowA, glowB, mw = 0, mh = 0;
   let map = { s: 1, ox: 0, oy: 0 }, k = 1;          // stage units -> CSS px -> mask px
   function resize(force) {
     const t = TIERS[tier], dpr = Math.min(window.devicePixelRatio || 1, t.dpr);
@@ -389,12 +409,12 @@ function create(canvas, opts) {
     const dw = aspect >= 1 ? dl : Math.round(dl * aspect), dh = aspect >= 1 ? Math.round(dl / aspect) : dl;
     if (!force && w === canvas.width && h === canvas.height && vel && vel.w === sw && dyeT && dyeT.w === dw) return;
     canvas.width = w; canvas.height = h; cw = vw; ch = vh;
-    free(vel); free(dyeT); free(dyeTmp); free(divT); free(curlT); free(presT); free(maskT);
+    free(vel); free(dyeT); free(dyeTmp); free(divT); free(curlT); free(presT); free(maskT); free(glowA); free(glowB);
     const lf = linear ? gl.LINEAR : gl.NEAREST;
     vel = double(sw, sh, fmtRG, lf); presT = double(sw, sh, fmtR, gl.NEAREST);
     divT = target(sw, sh, fmtR, gl.NEAREST); curlT = target(sw, sh, fmtR, gl.NEAREST);
     dyeT = double(dw, dh, fmtRGBA, lf); dyeTmp = P.mac ? target(dw, dh, fmtRGBA, lf) : null;
-    mw = dw; mh = dh; maskT = target8(mw, mh); k = mw / vw;
+    mw = dw; mh = dh; maskT = target8(mw, mh); glowA = target8(mw, mh); glowB = target8(mw, mh); k = mw / vw;
   }
 
   /* ---- uniforms that rarely change ---- */
@@ -405,8 +425,12 @@ function create(canvas, opts) {
   const S = {
     seep: num(W.seep, 1), stir: num(W.stir, 1), swirl: num(W.swirl, 1), drift: num(W.drift, 1), sink: num(W.sink, 1),
     linger: Math.max(.05, num(W.linger, 1)), strength: num(W.strength, 1), halftone: num(W.halftone, .55),
-    dot: Math.max(2, num(W.dotSize, 5)), grain: num(W.grain, .22), wobble: num(W.wobble, 1)
+    dot: Math.max(2, num(W.dotSize, 5)), grain: num(W.grain, .22), wobble: num(W.wobble, 1),
+    glow: Math.max(0, Math.min(1, num(W.glow, .9))), glowSize: Math.max(.2, num(W.glowSize, 1.8))
   };
+
+  const LIVE = ['seep', 'stir', 'sink', 'strength', 'glow'];
+  const ALL = new Float32Array([1, 1, 1, 1]), RED = new Float32Array([1, 0, 0, 0]);    // which channels the glow blur reads
 
   /* ---- drawing passes ---- */
   function bindQuad() { gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0); }
@@ -518,6 +542,20 @@ function create(canvas, opts) {
       bindQuad();
     }
 
+    // a soft copy of the mask for the white glow: blur across, then down. Its width follows the pen as drawn on screen.
+    // A wide blur takes widely spaced taps, which would pick up thin strokes as streaks, so a wide one is built from a
+    // tight blur (one texel per tap) followed by the rest of the width on top of it.
+    if (S.glow > 0) {
+      const sigma = Math.max(1.6, S.glowSize * 3 * map.s * k), step = Math.max(.5, sigma / 2.4);
+      const u = use(P.glow);
+      const pass = (src, chan, st, dx, dy, dst) => {
+        gl.uniform1i(u.uSrc, tex(0, src.tex)); gl.uniform4fv(u.uChan, chan); gl.uniform2f(u.uStep, dx * st / mw, dy * st / mh); blit(dst);
+      };
+      const first = step > 1 ? 1 : step;
+      pass(maskT, ALL, first, 1, 0, glowA); pass(glowA, RED, first, 0, 1, glowB);
+      if (step > 1) { const rest = Math.sqrt(step * step - 1); pass(glowB, RED, rest, 1, 0, glowA); pass(glowA, RED, rest, 0, 1, glowB); }
+    }
+
     // moving strokes push the water
     if (npts) {
       const u = use(P.splat);
@@ -584,6 +622,7 @@ function create(canvas, opts) {
     // show it
     u = use(P.display); gl.uniform2f(u.texelSize, 1 / canvas.width, 1 / canvas.height);
     gl.uniform1i(u.uDye, tex(0, dyeT.read.tex)); gl.uniform1i(u.uMask, tex(1, maskT.tex));
+    gl.uniform1i(u.uGlow, tex(2, glowB.tex)); gl.uniform1f(u.uHalo, S.glow);
     gl.uniform3fv(u.uCore, core); gl.uniform3fv(u.uMid, mid); gl.uniform3fv(u.uFar, far);
     gl.uniform2f(u.uRes, canvas.width, canvas.height);
     gl.uniform1f(u.uStrength, 4.2 * S.strength); gl.uniform1f(u.uHalftone, S.halftone);
@@ -613,6 +652,9 @@ function create(canvas, opts) {
     begin, stroke, letter, push, end, minWidth,
     resize: () => resize(false),
     setMap: m => { map = m; },
+    /* settings that can be changed while it runs (the sliders in the corner) */
+    get: key => LIVE.includes(key) ? S[key] : undefined,
+    set: (key, v) => { if (LIVE.includes(key) && isFinite(v)) S[key] = key === 'glow' ? Math.max(0, Math.min(1, v)) : Math.max(0, v); },
     get alive () { return alive; },
     get tier () { return tier; }
   };

@@ -5,7 +5,8 @@
 
 /* ===================================================================== settings (see js/config.js) */
 const CFG = window.MICRODOSE_CONFIG, STYLES = window.MICRODOSE_STYLES;
-const MORPH_SECONDS = CFG.morphSeconds, STAGGER = CFG.stagger, EASE_POWER = CFG.easePower;
+const STAGGER = CFG.stagger;
+let EASE_POWER = CFG.easePower;                 // these two can be changed while the page runs (see window.microdose)
 const PEN_COLOURS = CFG.penColours, REDUCED_HOLD = CFG.reducedHold;
 const INK = CFG.ink, LINKS = CFG.links || {}, PENS = CFG.pens;
 
@@ -15,7 +16,7 @@ const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
 const ease = t => t < .5 ? .5 * Math.pow(2 * t, EASE_POWER) : 1 - .5 * Math.pow(2 - 2 * t, EASE_POWER);
 const hexRGB = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 const FW = 940, FH = 360;                      // each version is fitted into this box of the 1000 x 420 stage
-const D = MORPH_SECONDS;
+let D = CFG.morphSeconds;
 const PEN_INDEX = { pink: 0, blue: 1, red: 2, black: 3 };
 const hp = new URLSearchParams(location.hash.slice(1));     // debug switches after the # (see the bottom of this file)
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -328,6 +329,24 @@ if (hp.get('t') !== null) { frozen = true; T = parseFloat(hp.get('t')) || 0; }
 // #step=60 advances exactly 1/60 s per frame, however slowly the frames come (for checking frames on a slow machine)
 const fixedStep = hp.get('step') ? 1 / Math.max(1, +hp.get('step') || 60) : 0;
 Object.defineProperty(window, 'microdoseClock', { get: () => T });
+
+/* The settings the sliders in the corner can change while the page runs (js/stickers.js).
+   A new morph length rescales the clock so the word carries on from where it is instead of jumping. */
+window.microdose = {
+  get animated() { return !reduced.matches; },
+  get water() { return !!water; },
+  get(key) {
+    if (key === 'morphSeconds') return D;
+    if (key === 'easePower') return EASE_POWER;
+    return water ? water.get(key) : undefined;
+  },
+  set(key, v) {
+    if (!isFinite(v)) return;
+    if (key === 'morphSeconds') { v = Math.max(.5, v); T *= v / D; D = v; }
+    else if (key === 'easePower') EASE_POWER = Math.max(1, v);
+    else if (water) water.set(key, v);
+  }
+};
 resize();
 getTransition(0);
 requestAnimationFrame(now => { last = now; tick(now); });

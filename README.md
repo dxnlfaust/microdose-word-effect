@@ -62,6 +62,20 @@ Everything you're likely to want is in **`js/config.js`**:
 
 The credit text and its position are in `css/style.css` (`.credit`), and so is the perforated grid (`body.perforated`).
 
+## The two stickers
+
+Two stickers are stuck to the bottom corners (`css/stickers.css`, `js/stickers.js`).
+
+- **Bottom right: "Play with me!"** A little Aqua-style window of sliders for morph time, ease, seep, stir, sink,
+  strength and glow. It starts rolled up to its title bar; click the bar to open it. Changes happen live, and
+  "Put it back" restores the values from `js/config.js`. The water sliders grey out when the page is in the classic
+  look, and everything greys out for visitors who ask for reduced motion. Slider ranges are the `SPEC` list at the top of
+  the panel code in `js/stickers.js`.
+- **Bottom left: "Hi! This website is feeling ..."** A random picture from `assets/smileys/` on every page load,
+  and its file name is the feeling (`awesome.png` says "awesome"; `very-sleepy.png` says "very sleepy"). A static
+  site can't list a folder, so after adding, removing or renaming pictures run `python3 tools/make_smileys.py`, which
+  rewrites `js/smileys.js`. Sub-folders such as `assets/smileys/originals/` are ignored.
+
 ## Add more versions
 
 1. Extract the new pages and assign their letters in the letter lab, then export the project as JSON.
@@ -95,8 +109,13 @@ js/config.js        settings, colours and links (edit this)
 js/styles.js        the lettering (generated)
 js/main.js          the morphing, the classic ink, the credit
 js/water.js         the ink in water (WebGL fluid simulation)
+js/stickers.js      the two corner stickers: the settings panel and the feeling
+js/smileys.js       the list of pictures in assets/smileys/ (generated)
+css/stickers.css    how the stickers look
+assets/smileys/     the feelings pictures
 data/               the letter-lab export the lettering was made from
 fonts/              Schibsted Grotesk (SIL Open Font License, licence included)
 favicon.svg         the sun doodle
 tools/make_styles.py  turns a letter-lab export into js/styles.js
+tools/make_smileys.py turns assets/smileys/ into js/smileys.js
 ```
