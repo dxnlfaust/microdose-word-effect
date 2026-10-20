@@ -22,6 +22,24 @@ const $ = s => document.querySelector(s);
   box.querySelector('.feel').style.setProperty('--h', h);
   $('#feelName').textContent = name;
   $('#feelImg').src = src;
+
+  // the speech bubble: what to say depends on the feeling (js/config.js, `feelings`)
+  const CFG = window.MICRODOSE_CONFIG || {};
+  $('#feelSay').textContent = (CFG.feelings && CFG.feelings[name]) || 'say hello!';
+
+  // clicking it opens the contact window (js/config.js, `contact`)
+  const bubble = $('#feelBubble'), dlg = $('#contact'), contact = CFG.contact;
+  if (dlg && contact && (contact.email || contact.phone)) {
+    dlg.querySelector('.contact-card').style.setProperty('--h', h);
+    $('#contactImg').src = src;
+    const fill = (id, text, href) => { const a = $(id), li = a.closest('li'); if (!text) { li.hidden = true; return; } a.textContent = text; a.href = href; };
+    fill('#contactEmail', contact.email, 'mailto:' + contact.email);
+    fill('#contactPhone', contact.phone, 'tel:' + String(contact.phone).replace(/[^\d+]/g, ''));
+    bubble.addEventListener('click', () => { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); });
+    dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });       // a click on the dimmed page behind closes it
+  } else {
+    bubble.disabled = true; bubble.removeAttribute('aria-haspopup'); bubble.removeAttribute('title');
+  }
   box.hidden = false;
 })();
 

@@ -48,10 +48,13 @@
 <div class="stickers">
 <aside class="sticker sticker--feeling" id="feeling" aria-label="How this website is feeling" hidden>
   <div class="feel">
-    <div class="feel-pic"><img id="feelImg" alt="" width="92" height="92" decoding="async"></div>
-    <div class="feel-words">
-      <p class="feel-hi">Hi!</p>
-      <p class="feel-line">This website is feeling <strong class="feel-name" id="feelName"></strong></p>
+    <button type="button" class="feel-bubble" id="feelBubble" aria-haspopup="dialog" title="Get in touch"><span id="feelSay"></span></button>
+    <div class="feel-row">
+      <div class="feel-pic"><img id="feelImg" alt="" width="92" height="92" decoding="async"></div>
+      <div class="feel-words">
+        <p class="feel-hi">Hi!</p>
+        <p class="feel-line">This website is feeling <strong class="feel-name" id="feelName"></strong></p>
+      </div>
     </div>
   </div>
 </aside>
@@ -69,6 +72,21 @@
   </div>
 </aside>
 </div>
+
+<!-- Opens when the speech bubble on the feeling sticker is clicked (js/stickers.js fills it in). -->
+<dialog class="contact" id="contact" aria-labelledby="contactTitle">
+  <form method="dialog" class="contact-card">
+    <div class="contact-head">
+      <div class="contact-pic"><img id="contactImg" alt="" width="84" height="84"></div>
+      <h2 class="contact-title" id="contactTitle">Get in touch!</h2>
+    </div>
+    <ul class="contact-list">
+      <li><span class="contact-k">Email</span><a id="contactEmail"></a></li>
+      <li><span class="contact-k">Phone</span><a id="contactPhone"></a></li>
+    </ul>
+    <button class="contact-close">Close</button>
+  </form>
+</dialog>
 
 <noscript><p class="nojs">Microdose</p></noscript>
 <script src="js/config.js"></script>

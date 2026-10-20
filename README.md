@@ -59,6 +59,7 @@ Everything you're likely to want is in **`js/config.js`**:
 | `paper`, `perforations` | Paper colour, and whether to show the perforated blotter grid. |
 | `ink` | Pen width and taper (both looks), and the classic look's wobble, bleed, feather and grain. |
 | `links` | A link for each author's name in the corner: a web address, a bare domain or an email address. Leave it `''` and the name shows without a link. |
+| `contact`, `feelings` | The email and phone shown when the speech bubble is clicked, and what the bubble says for each smiley. |
 
 The credit text and its position are in `css/style.css` (`.credit`), and so is the perforated grid (`body.perforated`).
 
@@ -75,6 +76,10 @@ Two stickers are stuck to the bottom corners (`css/stickers.css`, `js/stickers.j
   and its file name is the feeling (`awesome.png` says "awesome"; `very-sleepy.png` says "very sleepy"). A static
   site can't list a folder, so after adding, removing or renaming pictures run `python3 tools/make_smileys.py`, which
   rewrites `js/smileys.js`. Sub-folders such as `assets/smileys/originals/` are ignored.
+- **The speech bubble.** Above the smiley, a bubble says something that fits the feeling. Clicking it opens a small
+  window with an email address and a phone number. The lines (`feelings`, one per picture, keyed by file name without
+  its ending) and the contact details (`contact`) are in `js/config.js`. The details there are placeholders. A picture
+  with no line in `feelings` says "say hello!", and if `contact` is emptied the bubble stays but does nothing.
 
 ## Add more versions
 

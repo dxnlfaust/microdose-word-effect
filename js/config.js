@@ -67,5 +67,25 @@ window.MICRODOSE_CONFIG = {
     Jess:    '',
     Marcus:  '',
     Poppy:   ''
+  },
+
+  /* ---- say hello ----
+     The speech bubble above the smiley changes with the feeling: one line per picture in assets/smileys/, keyed by
+     the file name without its ending (awesome.png is `awesome`). A picture with no line says "say hello!".
+     Clicking the bubble opens a small window with the contact details below. Both are placeholders for now. */
+  contact: {
+    email: 'hello@example.com',
+    phone: '0491 570 006'
+  },
+  feelings: {
+    awesome:    "so excited to meet you!",
+    cute:       "maybe we could get in touch?",
+    energised:  "lets chat already!",
+    hilarious:  "send me a funny!",
+    ponderous:  "i wonder if you'll call me?",
+    scared:     "don't message me anything scary!",
+    seductive:  "isn't it time you sent me a message?",
+    sleepy:     "[yawn] msg me here, but i'm off to bed",
+    welcoming:  "good day! delighted to make your acquaintance"
   }
 };

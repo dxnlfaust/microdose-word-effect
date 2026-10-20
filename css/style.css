@@ -18,7 +18,7 @@ body{
   display:grid;place-items:center;overflow:hidden;
   -webkit-font-smoothing:antialiased;
   /* the word sits a little above the middle, to leave room for the stickers in the bottom corners */
-  --lift:clamp(64px,11vh,120px);padding-bottom:var(--lift);
+  --lift:clamp(80px,15vh,160px);padding-bottom:var(--lift);
 }
 :focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:3px}
 
